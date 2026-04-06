@@ -1,0 +1,17 @@
+version: "3.8"
+name: discord-clone
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: discord-db-dev
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'rootpassword'
+      POSTGRES_DB: 'discord_db'
+    ports:
+      - "5432:5432"
+    volumes:
+      # Carpeta local para que los datos persistan si se apaga el contenedor
+      #- ./pg-data:/var/lib/postgresql/data
+      # Carpeta para scripts SQL de inicialización
+      - ./db-init:/docker-entrypoint-initdb.d
