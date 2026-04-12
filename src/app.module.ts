@@ -8,13 +8,29 @@ import { AppService } from './app.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env', // ¡Añadimos esto por si acaso!
+      envFilePath: '.env',
     }),
     
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        const dbType = configService.get<string>('DB_TYPE');
+
+        //Configuración para DESARROLLO (SQLite)
+        if (dbType === 'sqlite') {
+          console.log('📦 Conectando a SQLite para Desarrollo...');
+          return {
+            type: 'sqlite',
+            database: configService.get<string>('DB_DATABASE') || 'dev.sqlite',
+            autoLoadEntities: true,
+            synchronize: true, // TypeORM crea las tablas por nosotros
+            logging: ['query', 'error'],
+          };
+        }
+
+        //Configuración para PRODUCCIÓN (PostgreSQL)
+        console.log('🐘 Conectando a PostgreSQL para Producción...');
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -24,7 +40,6 @@ import { AppService } from './app.service';
           database: configService.get<string>('DB_NAME'),
           autoLoadEntities: true,
           synchronize: true, 
-          logging: ['query', 'error'], 
         };
       },
     }),
