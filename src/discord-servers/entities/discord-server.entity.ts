@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Channel } from '../../channels/entities/channel.entity';
 import { ServerMember } from './server-member.entity'; 
 
 @Entity('discord_servers')
@@ -24,4 +25,7 @@ export class DiscordServer {
 
   @OneToMany(() => ServerMember, (serverMember) => serverMember.server)
   members!: ServerMember[];
+  //Un servidor tiene MUCHOS canales
+  @OneToMany(() => Channel, (channel) => channel.server)
+  channels!: Channel[];
 }
