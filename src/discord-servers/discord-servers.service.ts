@@ -17,9 +17,10 @@ export class DiscordServersService {
     private serverMemberRepository: Repository<ServerMember>,
   ) {}
 
-  async create(createDiscordServerDto: CreateDiscordServerDto): Promise<DiscordServer> {
+  //recibe el ownerId por separado (extraído del Token)
+  async create(createDiscordServerDto: CreateDiscordServerDto, ownerId: string): Promise<DiscordServer> {
     try {
-      //Creo el Servidor
+      // Creo el Servidor
       const newServer = this.serverRepository.create({
         name: createDiscordServerDto.name,
         description: createDiscordServerDto.description,
@@ -30,30 +31,32 @@ export class DiscordServersService {
       // se guarda en BD para que TypeORM le genere un ID
       const savedServer = await this.serverRepository.save(newServer);
 
-      //Se Crea al Dueño en la tabla intermedia
+      // Se Crea al Dueño en la tabla intermedia
       const ownerMember = this.serverMemberRepository.create({
         role: 'OWNER',
-        user: { id: createDiscordServerDto.ownerId }, 
+        //Uso el ID del token, no del DTO
+        user: { id: ownerId }, 
         server: { id: savedServer.id },
       });
 
       // se guarda la relación
       await this.serverMemberRepository.save(ownerMember);
 
-      return savedServer;
+      return await this.findOne(savedServer.id);
 
     } catch (error) {
-      throw new InternalServerErrorException('Error al crear el servidor. Verifica que el ownerId exista.');
+      throw new InternalServerErrorException('Error al crear el servidor.');
     }
   }
 
   async findAll(): Promise<DiscordServer[]> {
     return await this.serverRepository.find({
       // todas las filas de discord-server y todas las filas en las que aparezcan en server-member con su user asiciado
-      //esto es impresionante esta funcion, es un JOIN LEFT en toda regla, lo empaqueta solo en un JSON
+      // esto es impresionante esta funcion, es un JOIN LEFT en toda regla, lo empaqueta solo en un JSON
       relations: ['members', 'members.user'], 
     });
   }
+
   // Buscar uno solo por ID
   async findOne(id: string): Promise<DiscordServer> {
     const server = await this.serverRepository.findOne({
@@ -68,7 +71,7 @@ export class DiscordServersService {
     return server;
   }
 
-  //Actualizar servidor
+  // Actualizar servidor
   async update(id: string, updateDiscordServerDto: UpdateDiscordServerDto): Promise<DiscordServer> {
     const server = await this.findOne(id);
     
@@ -77,14 +80,14 @@ export class DiscordServersService {
     return await this.serverRepository.save(server);
   }
 
-  //Eliminar servidor
+  // Eliminar servidor
   async remove(id: string): Promise<void> {
     const server = await this.findOne(id);
     
-    //Se tienen que borrar todas las relaciones en la tabla intermedia asociadas a este servidor
+    // Se tienen que borrar todas las relaciones en la tabla intermedia asociadas a este servidor
     await this.serverMemberRepository.delete({ server: { id: server.id } });
     
-    //Una ve z borradas se puede borrar el servidor con seguridad
+    // Una vez borradas se puede borrar el servidor con seguridad
     await this.serverRepository.remove(server);
   }
 }

@@ -17,6 +17,4 @@ export class CreateDiscordServerDto {
   @IsUrl({}, { message: 'Si envías un icono, debe ser una URL válida' })
   iconUrl?: string;
 
-  @IsUUID('all', { message: 'El ownerId debe ser un UUID válido' })
-  ownerId!: string;
 }

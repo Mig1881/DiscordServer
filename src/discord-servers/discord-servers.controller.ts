@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import type { Request } from 'express'; // ✨ Usamos 'import type' para evitar el error de TypeScript
 import { DiscordServersService } from './discord-servers.service';
 import { CreateDiscordServerDto } from './dto/create-discord-server.dto';
 import { UpdateDiscordServerDto } from './dto/update-discord-server.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('discord-servers')
 export class DiscordServersController {
   constructor(private readonly discordServersService: DiscordServersService) {}
 
   @Post()
-  create(@Body() createDiscordServerDto: CreateDiscordServerDto) {
-    return this.discordServersService.create(createDiscordServerDto);
+  create(@Body() createDiscordServerDto: CreateDiscordServerDto, @Req() request: Request) {
+    const userId = request['user'].sub;
+    
+    return this.discordServersService.create(createDiscordServerDto, userId);
   }
 
   @Get()

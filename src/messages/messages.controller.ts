@@ -1,15 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Post()
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messagesService.create(createMessageDto);
+  create(@Body() createMessageDto: CreateMessageDto, @Req() request: Request) {
+    // Extraemos el ID del token
+    const userId = request['user'].sub;
+    
+    // ✨ Y aquí le pasamos el userId al servicio
+    return this.messagesService.create(createMessageDto, userId);
   }
 
   @Get()
