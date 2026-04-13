@@ -17,6 +17,13 @@ export class DiscordServersController {
     return this.discordServersService.create(createDiscordServerDto, userId);
   }
 
+  //Endpoint para unirse: POST /discord-servers/ID_DEL_SERVIDOR/join
+  @Post(':id/join')
+  joinServer(@Param('id') serverId: string, @Req() request: Request) {
+    const userId = request['user'].sub;
+    return this.discordServersService.joinServer(serverId, userId);
+  }
+
   @Get()
   findAll() {
     return this.discordServersService.findAll();

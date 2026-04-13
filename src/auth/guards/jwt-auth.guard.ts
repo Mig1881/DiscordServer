@@ -17,7 +17,6 @@ export class JwtAuthGuard implements CanActivate {
     try {
       // Se Verifica el token con la misma clave secreta matemática
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'MI_CLAVE_SECRETA_SÚPER_SEGURA_123'
       });
       
       request['user'] = payload;

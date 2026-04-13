@@ -10,7 +10,7 @@ import { User } from '../users/entities/user.entity';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       global: true,
-      secret: 'MI_CLAVE_SECRETA_SÚPER_SEGURA_123',
+      secret: 'MI_CLAVE_SECRETA_SÚPER_SEGURA_123_V3',
       signOptions: { expiresIn: '1d' },
     }),
   ],

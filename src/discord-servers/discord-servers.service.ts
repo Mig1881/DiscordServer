@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDiscordServerDto } from './dto/create-discord-server.dto';
@@ -90,4 +90,29 @@ export class DiscordServersService {
     // Una vez borradas se puede borrar el servidor con seguridad
     await this.serverRepository.remove(server);
   }
+  // Metodo para unirse a un servidor
+  async joinServer(serverId: string, userId: string): Promise<DiscordServer> {
+  const server = await this.findOne(serverId);
+
+  const existingMember = await this.serverMemberRepository.findOne({
+    where: {
+      server: { id: server.id },
+      user: { id: userId },
+    },
+  });
+
+  if (existingMember) {
+    throw new ConflictException('Ya eres miembro de este servidor');
+  }
+
+  const newMember = this.serverMemberRepository.create({
+    role: 'MEMBER',
+    user: { id: userId },
+    server: { id: server.id },
+  });
+
+  await this.serverMemberRepository.save(newMember);
+
+  return await this.findOne(server.id);
+}
 }
