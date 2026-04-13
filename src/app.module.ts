@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { DiscordServersModule } from './discord-servers/discord-servers.module';
+import { ChannelsModule } from './channels/channels.module';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { DiscordServersModule } from './discord-servers/discord-servers.module';
     UsersModule,
     
     DiscordServersModule,
+    
+    ChannelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
