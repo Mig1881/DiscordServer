@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { DiscordServer } from '../../discord-servers/entities/discord-server.entity';
+import { Message } from '../../messages/entities/message.entity';
 
 @Entity('channels')
 export class Channel {
@@ -18,10 +19,16 @@ export class Channel {
   @CreateDateColumn()
   createdAt!: Date;
 
-  //Relación N:1 -> Muchos canales pertenecen a UN servidor
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  // Relación N:1 -> Muchos canales pertenecen a UN servidor
   @ManyToOne(() => DiscordServer, (server) => server.channels, {
     onDelete: 'CASCADE',
-    // Si se borra el servidor, se borran sus canales
   })
   server!: DiscordServer;
+  
+  //relación 1:N hacia los mensajes
+  @OneToMany(() => Message, (message) => message.channel)
+  messages!: Message[];
 }

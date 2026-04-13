@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { DiscordServersModule } from './discord-servers/discord-servers.module';
 import { ChannelsModule } from './channels/channels.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -52,6 +53,8 @@ import { ChannelsModule } from './channels/channels.module';
     DiscordServersModule,
     
     ChannelsModule,
+    
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
