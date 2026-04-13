@@ -1,0 +1,36 @@
+version: "3.8"
+name: discord-clone
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: discord-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      POSTGRES_DB: ${DB_NAME:-discord_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discord-api
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      # Le pasamos las variables para que NestJS sepa conectarse al contenedor 'db'
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      DB_NAME: ${DB_NAME:-discord_db}
+
+volumes:
+  pg-data:
