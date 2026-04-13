@@ -20,35 +20,25 @@ export class MessagesService {
     private channelRepository: Repository<Channel>,
   ) {}
 
-  async create(createMessageDto: CreateMessageDto): Promise<Message> {
-    //Se Verifica que el usuario existe
-    const author = await this.userRepository.findOne({ where: { id: createMessageDto.authorId } });
-    if (!author) {
-      throw new NotFoundException(`El usuario con ID ${createMessageDto.authorId} no existe`);
-    }
+  async create(createMessageDto: CreateMessageDto, authorId: string): Promise<Message> {
+    
+    // Verificamos usuario con el ID seguro
+    const author = await this.userRepository.findOne({ where: { id: authorId } });
+    if (!author) throw new NotFoundException('Usuario no encontrado');
 
-    //Se Verifica que el canal existe
     const channel = await this.channelRepository.findOne({ where: { id: createMessageDto.channelId } });
-    if (!channel) {
-      throw new NotFoundException(`El canal con ID ${createMessageDto.channelId} no existe`);
-    }
+    if (!channel) throw new NotFoundException('Canal no encontrado');
 
-    //Se Crea el mensaje en memoria
     const newMessage = this.messageRepository.create({
       content: createMessageDto.content,
       isSpoiler: createMessageDto.isSpoiler,
       type: createMessageDto.type,
       author: { id: author.id },
-      channel: { id: channel.id },
+      channel: { id: channel.id }, 
     });
 
-    //Se guarda en la base de datos
     await this.messageRepository.save(newMessage);
-
-    return await this.messageRepository.findOne({
-      where: { id: newMessage.id },
-      relations: ['author', 'channel'], // Cargamos las relaciones para ver quién lo escribió
-    }) as Message;
+    return await this.findOne(newMessage.id);
   }
 
   // Todos los mensajes

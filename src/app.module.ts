@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { DiscordServersModule } from './discord-servers/discord-servers.module';
 import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -55,6 +56,8 @@ import { MessagesModule } from './messages/messages.module';
     ChannelsModule,
     
     MessagesModule,
+    
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
