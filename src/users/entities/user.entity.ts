@@ -1,4 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { OneToMany } from 'typeorm';
+import { ServerMember } from '../../discord-servers/entities/server-member.entity';
 
 @Entity('users')
 export class User {
@@ -26,4 +28,7 @@ export class User {
 
   @Column({ default: 'en' })
   uiLang!: string; 
+  //Un usuario tiene MUCHAS membresías en diferentes servidores
+  @OneToMany(() => ServerMember, (serverMember) => serverMember.user)
+  serverMembers!: ServerMember[];
 }
