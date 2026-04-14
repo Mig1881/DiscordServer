@@ -6,6 +6,7 @@ import { Message } from './entities/message.entity';
 import { User } from '../users/entities/user.entity';
 import { Channel } from '../channels/entities/channel.entity';
 import { NotFoundException } from '@nestjs/common';
+import { MessagesGateway } from './messages.gateway';
 
 const mockMessageRepo: any = { create: jest.fn(), save: jest.fn(), findOne: jest.fn() };
 const mockChannelRepo: any = { findOne: jest.fn() };
@@ -21,6 +22,7 @@ describe('MessagesService', () => {
         { provide: getRepositoryToken(Message), useValue: mockMessageRepo },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: getRepositoryToken(Channel), useValue: mockChannelRepo },
+        { provide: MessagesGateway, useValue: { broadcastNewMessage: jest.fn() } },
       ],
     }).compile();
 

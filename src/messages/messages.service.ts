@@ -6,6 +6,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { Message } from './entities/message.entity';
 import { User } from '../users/entities/user.entity';
 import { Channel } from '../channels/entities/channel.entity';
+import { MessagesGateway } from './messages.gateway'; 
 
 @Injectable()
 export class MessagesService {
@@ -18,6 +19,8 @@ export class MessagesService {
 
     @InjectRepository(Channel)
     private channelRepository: Repository<Channel>,
+
+    private messagesGateway: MessagesGateway, 
   ) {}
 
   async create(createMessageDto: CreateMessageDto, authorId: string): Promise<Message> {
@@ -37,8 +40,16 @@ export class MessagesService {
       channel: { id: channel.id }, 
     });
 
+    //Se guarda en base de datos
     await this.messageRepository.save(newMessage);
-    return await this.findOne(newMessage.id);
+    
+    // Se recupera el mensaje completo con sus relaciones (autor y canal)
+    const savedMessage = await this.findOne(newMessage.id);
+
+    //Se emite el mensaje guardado por el canal correspondiente
+    this.messagesGateway.broadcastNewMessage(channel.id, savedMessage);
+
+    return savedMessage;
   }
 
   // Todos los mensajes
