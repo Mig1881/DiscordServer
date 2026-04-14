@@ -5,11 +5,12 @@ import { MessagesController } from './messages.controller';
 import { Message } from './entities/message.entity';
 import { User } from '../users/entities/user.entity';
 import { Channel } from '../channels/entities/channel.entity';
+import { MessagesGateway } from './messages.gateway';
 
 @Module({
   //Le doy acceso a las 3 tablas
   imports: [TypeOrmModule.forFeature([Message, User, Channel])],
   controllers: [MessagesController],
-  providers: [MessagesService],
+  providers: [MessagesService, MessagesGateway],
 })
 export class MessagesModule {}
