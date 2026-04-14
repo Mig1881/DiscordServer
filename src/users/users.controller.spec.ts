@@ -2,13 +2,11 @@ import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-//Creo el Mock de la capa de Servicio
 const mockUsersService: any = {
-  create: jest.fn(),
   findAll: jest.fn(),
   findOne: jest.fn(),
-  update: jest.fn(),
   remove: jest.fn(),
 };
 
@@ -18,31 +16,30 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-      ],
-    }).compile();
+      providers: [{ provide: UsersService, useValue: mockUsersService }],
+    })
+      .overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true }) // Bypass
+      .compile();
 
     controller = module.get<UsersController>(UsersController);
   });
 
-  // Test 1: Comprueba que el controlador se instancia sin explotar
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('debería devolver una lista de usuarios', async () => {
+    const expectedUsers = [{ id: '1', username: 'Alfa' }, { id: '2', username: 'Beta' }];
+    mockUsersService.findAll.mockResolvedValue(expectedUsers);
+    expect(await controller.findAll()).toBe(expectedUsers);
   });
 
-  // Test 2: Comprueba que el método findAll del controlador devuelve lo que dicta el servicio
-  it('should return an array of users', async () => {
-    // Preparacion de datos falsos
-    const expectedUsers = [{ id: '123', username: 'TestUser' }];
-    
-    // Le digo al servicio falso que devuelva esos datos
-    mockUsersService.findAll.mockResolvedValue(expectedUsers);
+  it('debería devolver un usuario concreto por su ID', async () => {
+    const user = { id: '99', username: 'Zeta' };
+    mockUsersService.findOne.mockResolvedValue(user);
+    expect(await controller.findOne('99')).toEqual(user);
+    expect(mockUsersService.findOne).toHaveBeenCalledWith('99');
+  });
 
-    // Llamo al controlador y esperamos que nos devuelva exactamente eso
-    expect(await controller.findAll()).toBe(expectedUsers);
+  it('debería llamar al servicio para borrar un usuario', async () => {
+    mockUsersService.remove.mockResolvedValue({ affected: 1 });
+    await controller.remove('99');
+    expect(mockUsersService.remove).toHaveBeenCalledWith('99');
   });
 });
