@@ -23,30 +23,30 @@ Un backend robusto y escalable diseñado para emular las funcionalidades princip
 ## ⚙️ Instalación y Configuración
 
 ### 1. Clonar el repositorio
-\`\`\`bash
-git clone https://github.com/TU_USUARIO/discord-backend.git
+```bash
+git clone https://github.com/Mig1881/DiscordServer
 cd discord-backend
-\`\`\`
+```
 
 ### 2. Instalar dependencias
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ### 3. Variables de Entorno
 Crea un archivo \`.env\` en la raíz del proyecto basándote en el archivo de ejemplo y configura tus credenciales de base de datos y tu `JWT_SECRET`.
 
 ### 4. Arrancar el servidor
-\`\`\`bash
+```bash
 # Modo desarrollo
 npm run start:dev
-\`\`\`
+```
 
 ---
 
 ## 🧪 Cómo probar la API de forma básica
 
-Recomendamos usar **Postman**.
+Recomiendo usar **Postman** o **Hoppscotch**.
 
 ### Paso 1: Autenticación
 1. Haz un `POST` a `/auth/register` con un email y contraseña.
@@ -71,6 +71,6 @@ Recomendamos usar **Postman**.
 
 El proyecto cuenta con una suite de pruebas unitarias para asegurar la estabilidad de la lógica crítica.
 
-\`\`\`bash
+```bash
 npm run test
-\`\`\`
+```
