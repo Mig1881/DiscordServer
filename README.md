@@ -74,3 +74,13 @@ El proyecto cuenta con una suite de pruebas unitarias para asegurar la estabilid
 ```bash
 npm run test
 ```
+o si quieres ver con detalle que hace cada test  
+```bash
+npm test --  --verbose
+```
+Tambien existe un test de integracion e2e que verifica la integración de TypeORM, WebSockets, JWT y ConfigModule.  
+
+Para ejecutarlo:  
+```bash
+npm run test:e2e
+```

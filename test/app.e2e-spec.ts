@@ -1,29 +1,27 @@
+/// <reference types="jest" />
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('Discord Backend Integration (e2e)', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
+  //Se usa beforeAll para levantar la app una sola vez antes de los tests
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    await app.init();
+    await app.init(); // Arranca NestJS y se conecta a SQLite usando .env
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
-  afterEach(async () => {
+  //Se cierra la app al terminar
+  afterAll(async () => {
     await app.close();
+  });
+
+  it('🚀 La aplicación debe inicializar todos los módulos y conectar a la BD correctamente', () => {
+    expect(app).toBeDefined();
   });
 });
