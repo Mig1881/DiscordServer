@@ -33,12 +33,12 @@ describe('UsersService', () => {
   });
 
   // Test 1: Comprueba que el servicio se instancia correctamente sin explotar
-  it('should be defined', () => {
+  it('deberia de estar definido, se instancia correctamente', () => {
     expect(service).toBeDefined();
   });
 
   // Test 2: lógica de NotFoundException
-  it('should throw a NotFoundException if user is not found', async () => {
+  it('deberia de lanzar el error correcto, NotFoundException', async () => {
     // Añadimos "as any" dentro de los paréntesis
     mockUserRepository.findOne.mockResolvedValue(null);
 
