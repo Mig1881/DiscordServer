@@ -18,12 +18,12 @@ export class ServerMember {
 
   @CreateDateColumn()
   joinedAt!: Date;
-
-  // Relación N:1 hacia el Usuario
-  @ManyToOne(() => User, (user) => user.serverMembers)
+  //La regla de oro para las tablas pivote: No pueden existir si falta una de sus dos mitades
+  //Comportamiento: Si el USUARIO se borra, su membresía en el servidor se destruye.
+  @ManyToOne(() => User, (user) => user.serverMembers, { onDelete: 'CASCADE' })
   user!: User;
 
-  // Relación N:1 hacia el Servidor
-  @ManyToOne(() => DiscordServer, (server) => server.members)
+  //Comportamiento: Si el SERVIDOR se borra, todas las membresías vinculadas a él se destruyen.
+  @ManyToOne(() => DiscordServer, (server) => server.members, { onDelete: 'CASCADE' })
   server!: DiscordServer;
 }
