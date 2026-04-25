@@ -84,3 +84,6 @@ Para ejecutarlo:
 ```bash
 npm run test:e2e
 ```
+## Diseño de la base de Datos
+
+<img width="1482" height="1344" alt="image" src="https://github.com/user-attachments/assets/f1929e00-aab2-4719-8b4e-ae4b508199fd" />
