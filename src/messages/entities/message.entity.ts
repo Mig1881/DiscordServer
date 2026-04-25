@@ -7,15 +7,15 @@ export class Message {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  //tipo 'text' porque los mensajes pueden ser largos
+  // tipo 'text' porque los mensajes pueden ser largos
   @Column('text')
   content!: string;
 
-  //Para la etiqueta de Spoiler
+  // Para la etiqueta de Spoiler
   @Column({ default: false })
   isSpoiler!: boolean;
 
-  //Para diferenciar mensajes normales de los del sistema o respuestas
+  // Para diferenciar mensajes normales de los del sistema o respuestas
   @Column({ default: 'DEFAULT' })
   type!: string;
 
@@ -27,9 +27,12 @@ export class Message {
   @UpdateDateColumn()
   updatedAt!: Date;
 
+  //Comportamiento Discord: Si el CANAL muere, sus mensajes mueren.
   @ManyToOne(() => Channel, (channel) => channel.messages, { onDelete: 'CASCADE' })
   channel!: Channel;
 
-  @ManyToOne(() => User, (user) => user.messages, { onDelete: 'CASCADE' })
-  author!: User;
+  // Comportamiento Discord: Si el AUTOR muere, el mensaje se queda pero se desvincula.
+  // He añadido nullable: true en el decorador y "| null" en el tipado de TypeScript.
+  @ManyToOne(() => User, (user) => user.messages, { onDelete: 'SET NULL', nullable: true })
+  author!: User | null; 
 }
