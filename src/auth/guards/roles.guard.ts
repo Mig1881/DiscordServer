@@ -28,29 +28,44 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const userId = request.user?.sub; // ID del usuario desde el JWT
-    const channelId = request.params.id; // ID del canal que intentan borrar
+    
+    let serverIdToValidate: string;
 
-    if (!channelId) return false;
+    //Esto lo he añadido para simular la logica de discord
+    //Añado una restriccion mas que no esta en las especificaciones iniciales
+    //SOlo un OWNER puede crear un canal en el servidor
+    //Asi como, lo que pide el profesor, solo un Owner puede borrar un canal
+    // intentan CREAR un canal, el serverId viene en el body
+    if (request.body && request.body.serverId) {
+      serverIdToValidate = request.body.serverId;
+    } 
+    // --- LÓGICA PARA DELETE/PATCH: Si no está en el body, se busca por la URL
+    else {
+      const channelId = request.params.id; // ID del canal
+      if (!channelId) return false;
 
-    //Se busca el canal para saber a qué servidor pertenece
-    const channel = await this.channelRepository.findOne({ 
-      where: { id: channelId },
-      relations: ['server'] 
-    });
+      // Se busca el canal para saber a qué servidor pertenece
+      const channel = await this.channelRepository.findOne({ 
+        where: { id: channelId },
+        relations: ['server'] 
+      });
 
-    if (!channel) throw new NotFoundException('El canal no existe');
+      if (!channel) throw new NotFoundException('El canal no existe');
+      
+      serverIdToValidate = channel.server.id;
+    }
 
-    //Se busca el rol del usuario en ESE servidor específico
+    // Se busca el rol del usuario en ESE servidor específico
     const member = await this.serverMemberRepository.findOne({
       where: {
         user: { id: userId },
-        server: { id: channel.server.id }
+        server: { id: serverIdToValidate }
       }
     });
 
     if (!member) throw new ForbiddenException('No eres miembro de este servidor');
 
-    //¿El rol del usuario está entre los permitidos?
+    // ¿El rol del usuario está entre los permitidos?
     const hasRole = requiredRoles.includes(member.role);
     
     if (!hasRole) {

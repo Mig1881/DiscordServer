@@ -11,6 +11,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 export class ChannelsController {
   constructor(private readonly channelsService: ChannelsService) {}
 
+  @Roles('OWNER')
   @Post()
   create(@Body() createChannelDto: CreateChannelDto) {
     return this.channelsService.create(createChannelDto);

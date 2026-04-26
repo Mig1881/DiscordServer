@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDiscordServerDto } from './dto/create-discord-server.dto';
@@ -12,12 +12,11 @@ export class DiscordServersService {
     @InjectRepository(DiscordServer)
     private serverRepository: Repository<DiscordServer>,
     
-    // ✨ Inyectamos el repositorio de la tabla intermedia
     @InjectRepository(ServerMember)
     private serverMemberRepository: Repository<ServerMember>,
   ) {}
 
-  //recibe el ownerId por separado (extraído del Token)
+  // Recibe el ownerId por separado (extraído del Token)
   async create(createDiscordServerDto: CreateDiscordServerDto, ownerId: string): Promise<DiscordServer> {
     try {
       // Creo el Servidor
@@ -28,18 +27,18 @@ export class DiscordServersService {
         iconUrl: createDiscordServerDto.iconUrl,
       });
 
-      // se guarda en BD para que TypeORM le genere un ID
+      // Se guarda en BD para que TypeORM le genere un ID
       const savedServer = await this.serverRepository.save(newServer);
 
       // Se Crea al Dueño en la tabla intermedia
       const ownerMember = this.serverMemberRepository.create({
         role: 'OWNER',
-        //Uso el ID del token, no del DTO
+        // Uso el ID del token, no del DTO
         user: { id: ownerId }, 
         server: { id: savedServer.id },
       });
 
-      // se guarda la relación
+      // Se guarda la relación
       await this.serverMemberRepository.save(ownerMember);
 
       return await this.findOne(savedServer.id);
@@ -52,7 +51,6 @@ export class DiscordServersService {
   async findAll(): Promise<DiscordServer[]> {
     return await this.serverRepository.find({
       // todas las filas de discord-server y todas las filas en las que aparezcan en server-member con su user asiciado
-      // esto es impresionante esta funcion, es un JOIN LEFT en toda regla, lo empaqueta solo en un JSON
       relations: ['members', 'members.user'], 
     });
   }
@@ -72,7 +70,16 @@ export class DiscordServersService {
   }
 
   // Actualizar servidor
-  async update(id: string, updateDiscordServerDto: UpdateDiscordServerDto): Promise<DiscordServer> {
+  async update(id: string, updateDiscordServerDto: UpdateDiscordServerDto, userId: string): Promise<DiscordServer> {
+    //¿Es miembro y es OWNER o ADMIN?
+    const member = await this.serverMemberRepository.findOne({
+      where: { server: { id }, user: { id: userId } },
+    });
+
+    if (!member || (member.role !== 'OWNER' && member.role !== 'ADMIN')) {
+      throw new ForbiddenException('No tienes permisos para editar este servidor. Se requiere rol OWNER o ADMIN.');
+    }
+
     const server = await this.findOne(id);
     
     Object.assign(server, updateDiscordServerDto);
@@ -81,38 +88,43 @@ export class DiscordServersService {
   }
 
   // Eliminar servidor
-  async remove(id: string): Promise<void> {
+  async remove(id: string, userId: string): Promise<void> {
+    //Validar permisos: ¿Es el dueño absoluto?
+    const member = await this.serverMemberRepository.findOne({
+      where: { server: { id }, user: { id: userId } },
+    });
+
+    if (!member || member.role !== 'OWNER') {
+      throw new ForbiddenException('Solo el dueño del servidor puede eliminarlo.');
+    }
+
     const server = await this.findOne(id);
     
-    // Se tienen que borrar todas las relaciones en la tabla intermedia asociadas a este servidor
-    await this.serverMemberRepository.delete({ server: { id: server.id } });
-    
-    // Una vez borradas se puede borrar el servidor con seguridad
     await this.serverRepository.remove(server);
   }
   // Metodo para unirse a un servidor
   async joinServer(serverId: string, userId: string): Promise<DiscordServer> {
-  const server = await this.findOne(serverId);
+    const server = await this.findOne(serverId);
 
-  const existingMember = await this.serverMemberRepository.findOne({
-    where: {
-      server: { id: server.id },
+    const existingMember = await this.serverMemberRepository.findOne({
+      where: {
+        server: { id: server.id },
+        user: { id: userId },
+      },
+    });
+
+    if (existingMember) {
+      throw new ConflictException('Ya eres miembro de este servidor');
+    }
+
+    const newMember = this.serverMemberRepository.create({
+      role: 'MEMBER',
       user: { id: userId },
-    },
-  });
+      server: { id: server.id },
+    });
 
-  if (existingMember) {
-    throw new ConflictException('Ya eres miembro de este servidor');
+    await this.serverMemberRepository.save(newMember);
+
+    return await this.findOne(server.id);
   }
-
-  const newMember = this.serverMemberRepository.create({
-    role: 'MEMBER',
-    user: { id: userId },
-    server: { id: server.id },
-  });
-
-  await this.serverMemberRepository.save(newMember);
-
-  return await this.findOne(server.id);
-}
 }

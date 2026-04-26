@@ -40,4 +40,4 @@ describe('ChannelsController', () => {
     await controller.remove('canal-1');
     expect(mockChannelsService.remove).toHaveBeenCalledWith('canal-1');
   });
-});
+}); 
