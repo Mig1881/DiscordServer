@@ -35,13 +35,15 @@ export class DiscordServersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDiscordServerDto: UpdateDiscordServerDto) {
-    return this.discordServersService.update(id, updateDiscordServerDto);
+  update(@Param('id') id: string, @Body() updateDiscordServerDto: UpdateDiscordServerDto, @Req() request: Request){
+    const userId = request['user'].sub; // Extrigo el ID
+    return this.discordServersService.update(id, updateDiscordServerDto, userId);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.discordServersService.remove(id);
+  remove(@Param('id') id: string, @Req() request: Request) {
+    const userId = request['user'].sub; // Extrigo el ID del usuario del JWT
+    return this.discordServersService.remove(id, userId); // Se le pasa al servicio
   }
 }
