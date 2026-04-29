@@ -2,13 +2,18 @@
 
 Un backend robusto y escalable diseñado para emular las funcionalidades principales de Discord. Desarrollado con **NestJS**, este proyecto incluye autenticación segura, gestión de servidores y canales, control de roles (RBAC), y comunicación en tiempo real.
 
-## ✨ Características Principales
+## ✨ Características Principales (10).
 
-- **Autenticación y Autorización:** Sistema de login/registro con JWT (JSON Web Tokens) y contraseñas encriptadas con Bcrypt.
-- **Gestión de Entidades:** CRUD completo para Usuarios, Servidores (Discord Servers), Canales y Mensajes usando TypeORM.
-- **Control de Acceso por Roles (RBAC):** Restricción de rutas críticas (ej. borrar un canal) para que solo el propietario (`OWNER`) del servidor pueda ejecutarlas.
-- **Tiempo Real:** Integración de WebSockets (`Socket.io`) para emitir mensajes en tiempo real a los clientes conectados a un canal.
-- **Testing Unitario:** Cobertura de pruebas con `Jest` para los servicios críticos y de negocio, simulando dependencias y repositorios.
+- **1.Arquitectura REST Completa:** Implementacion de CRUD completo para para Usuarios, Servidores (Discord Servers), Canales y Mensajes.  
+- **2.Persistencia de datos con ORM:** Conexion a una base de datos SQLite en desarrollo y con PostgreSQL en produccion utilizando TypeORM.  
+- **3.Seguridad y Autenticación:** Sistema de login/registro con JWT (JSON Web Tokens) y contraseñas encriptadas con Bcrypt, proteccion de rutas mediante Guards.  
+- **4.Validacion y Transformación:** Uso de Class-validator y Pipes para asegurar que los datos de entrada cumplen con el formato esperado antes de llegar a la lógica de negocio.  
+- **5.Contenerizacion con Docker:** Se realiza un docker-compose.yml que levanta la aplicacion y la base de datos permitiendo un despliegue inmediato con un solo comando.  
+- **6.Comunicacion en Tiempo Real:** Integración de WebSockets (`Socket.io`) para emitir mensajes en tiempo real a los clientes conectados a un canal.  
+- **7.Documentacion interactiva con Swagger:** Se configura @nestjs/swagger para generar la documentación de la API y una interfaz de pruebas automática.    
+- **8.Sistema de Roles y servicios (RBAC):** Restricción de rutas críticas (ej. borrar un canal) para que solo el propietario (`OWNER`) del servidor pueda ejecutarlas.  
+- **9.Logs y Monitorizacion:** Se implemeta un middleware de registro de actividad que visualiza en consola cada peticion realizada, incluyendo el tiempo de respuesta.  
+- **10.Testing Automatizado:** Cobertura de pruebas con `Jest` para los servicios críticos y de negocio, simulando dependencias y repositorios. Tambien se realiza una prueba E2E que verifica la integración de TypeORM, WebSockets, JWT y ConfigModule.  
 
 ## 🛠️ Tecnologías Utilizadas
 
