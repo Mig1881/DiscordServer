@@ -4,7 +4,9 @@ import { DiscordServersService } from './discord-servers.service';
 import { CreateDiscordServerDto } from './dto/create-discord-server.dto';
 import { UpdateDiscordServerDto } from './dto/update-discord-server.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('discord-servers')
 export class DiscordServersController {
