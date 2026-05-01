@@ -46,6 +46,12 @@ Crea un archivo \`.env\` en la raíz del proyecto basándote en el archivo de ej
 # Modo desarrollo
 npm run start:dev
 ```
+### Producción Local (Docker Completo)  
+Docker construirá la imagen del motor de la base de datos y de la API directamente desde tu código fuente local. Ideal para pruebas de pre-producción.  
+```bash
+# Modo produccion local
+docker compose up --build
+```
 
 ---
 
